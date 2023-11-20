@@ -1,0 +1,8 @@
+setup.py
+postal_client.egg-info/PKG-INFO
+postal_client.egg-info/SOURCES.txt
+postal_client.egg-info/dependency_links.txt
+postal_client.egg-info/requires.txt
+postal_client.egg-info/top_level.txt
+postalclient/__init__.py
+postalclient/main.py
