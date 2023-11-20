@@ -62,6 +62,92 @@ class Attachment:
 
         return {"name":name, "data":self.data}
 
+class Email:
+    """Email Class"""
+    sender: Addressee
+    """The sender name and email, uses Addresse Class"""
+
+    srv_account: Addressee
+    """The server name and email, uses Addresse Class"""
+
+    rply_to: Addressee
+    """The reply to email, uses Addresse Class"""
+
+    reciever: list
+    """Reciever List of addresse"""
+    cc: list
+    """CC List of addresse"""
+    bcc:list
+    """BCC List of addresse"""
+    subject: str
+    """Subject of email"""
+    html:str
+    """HTML content of email"""
+    plain_text: str
+    """Plain Text content of email"""
+    attachments:list
+    """List of all Attachments"""
+    tag:str
+    """Postal feature to add a tag to the email for easy debugging"""
+
+    def AddReciever(self, addressee:Addressee):
+        """Add a reciever"""
+        self.reciever.append(addressee)
+
+    def AddCC(self, addressee:Addressee):
+        """Add a carbon copy (CC) reciever"""
+        self.cc.append(addressee)
+
+    def AddBCC(self, addressee:Addressee):
+        """Add a black carbon copy (BCC) reciever"""
+        self.bcc.append(addressee)
+
+    def makeEmail(self):
+        """Function that creates the JSON Email, preparing the system to send emails."""
+
+        data = {}
+        #First create header info for senders
+
+        recievers = []
+        for person in self.reciever:
+            recievers.append(person.sendFormat())
+        data['to'] = recievers
+
+        recievers = []
+        for person in self.cc:
+            recievers.append(person.sendFormat())
+        data['cc'] = recievers
+
+        recievers = []
+        for person in self.bcc:
+            recievers.append(person.sendFormat())
+        data['bcc'] = recievers
+
+        data['from'] = self.sender.sendFormat()
+        if self.srv_account:
+            data['sender'] = self.srv_account.sendFormat()
+
+        if self.rply_to:
+            data['reply_to'] = self.rply_to.sendFormat()
+
+        if self.tag:
+            data['tag'] = self.tag
+        data['subject'] = self.subject
+
+        if self.plain_text:
+            data['plain_body'] = self.plain_text
+        if self.html:
+            data['html_body'] = self.html
+
+        attachments = []
+        for attachment in self.attachments:
+            attachments.append(attachment.sendFormat())
+        data['attachments'] = attachments
+
+        return data
+
+
+
 
 
 if __name__ == "__main__":
