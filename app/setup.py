@@ -15,7 +15,7 @@ setup(
     long_description_content_type="text/markdown",
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
-    install_requires=['python-magic'],
+    install_requires=['python-magic', 'eml-parser'],
     keywords=['python', 'postal', 'postal client'],
     classifiers=[
         "Development Status :: 1 - Planning",
