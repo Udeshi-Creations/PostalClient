@@ -44,7 +44,7 @@ class Attachment:
         if name:
             self.name = name
         self.ext = None
-        self.data = None
+        self.data = ''
 
 
     def sendFormat(self):
@@ -71,9 +71,11 @@ class Attachment:
         return {"name":name, "data":self.data}
 
     def fixFile(self):
+        """Function to fix base64"""
         self.data = self.data.replace('\n', '')
 
     def fileBytes(self):
+        """Returns the file content in bytes format"""
         self.fixFile()
         return base64.b64decode(self.data)
 
@@ -238,6 +240,55 @@ class Email:
 
         self.extra['id'] = data['id']
 
+    def readSendFormat(self, input):
+        """This function reads the sendFormat function output, for easy storage"""
+        #data = json.loads(input)
+        data = input
+        for person in data['to']:
+            personData = email.utils.parseaddr(person)
+            self.reciever.append(Addressee(personData[0], personData[1]))
+
+        for person in data['cc']:
+            personData = email.utils.parseaddr(person)
+            self.reciever.append(Addressee(personData[0], personData[1]))
+
+        for person in data['bcc']:
+            personData = email.utils.parseaddr(person)
+            self.reciever.append(Addressee(personData[0], personData[1]))
+
+        sender = email.utils.parseaddr(data['from'])
+        self.sender = Addressee(sender[0], sender[1])
+
+        if 'sender' in data:
+            sender = email.utils.parseaddr(data['sender'])
+            self.srv_account = Addressee(sender[0], sender[1])
+
+        if 'reply_to' in data:
+            sender = email.utils.parseaddr(data['reply_to'])
+            self.rply_to = Addressee(sender[0], sender[1])
+
+        if 'tag' in data:
+            self.tag = data['tag']
+
+
+        self.subject = data['subject']
+
+        if 'plain_body' in data:
+            self.plain_text = data['plain_body']
+
+        if 'html_body' in data:
+            self.html = data['html_body']
+
+        for attachment in data['attachments']:
+            myAttachment = Attachment()
+            myAttachment.data = attachment['data']
+            myAttachment.name = attachment['name'].split(".")[0]
+            myAttachment.ext = ".{}".format(attachment['name'].split(".")[1])
+            self.attachments.append(myAttachment)
+
+        return data
+
+
 
 def cleanText(text):
     bad_chars = [';', ':', '!', "*", "<", ">", '"', ","]
@@ -256,11 +307,16 @@ if __name__ == "__main__":
     myEmail.addReciever(Addressee('Prem Udeshi', 'premudeshi99@gmail.com'))
 
     myEmail.subject = "Hello World"
-    myEmail.attachments.append(myFile)
+    #myEmail.attachments.append(myFile)
+    #print(myEmail.makeEmail())
 
     myEmail.plain_text = "This is an email test!"
 
     myEmail.tag = "Email Text"
+
+    newEmail = Email()
+    newEmail.readSendFormat(myEmail.makeEmail())
+    #print(newEmail.sender.sendFormat())
 
     #print(json.dumps(myEmail.makeEmail())
 
